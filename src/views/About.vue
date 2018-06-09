@@ -5,7 +5,7 @@
       Eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam
       voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet
       clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit
-      amet.
+      amet. <router-link to="/about/more">Even more about us</router-link>.
     </p>
 
     <h2>Dolro sit</h2>
