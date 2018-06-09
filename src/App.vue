@@ -7,7 +7,8 @@
     <main class="App__main">
       <transition
         :name="transitionName"
-        mode="out-in"
+        :mode="transitionMode"
+        :enter-active-class="transitionEnterActiveClass"
         @beforeLeave="beforeLeave"
         @enter="enter"
         @afterEnter="afterEnter"
@@ -23,6 +24,7 @@
 
 <script>
 const DEFAULT_TRANSITION = `fade`;
+const DEFAULT_TRANSITION_MODE = `out-in`;
 
 export default {
   name: `App`,
@@ -30,11 +32,13 @@ export default {
     return {
       prevHeight: 0,
       transitionName: DEFAULT_TRANSITION,
+      transitionMode: DEFAULT_TRANSITION_MODE,
+      transitionEnterActiveClass: ``,
     };
   },
   created() {
     this.$router.beforeEach((to, from, next) => {
-      let transitionName = to.meta.transitionName || from.meta.transitionName;
+      let transitionName = to.meta.transitionName || from.meta.transitionName || DEFAULT_TRANSITION;
 
       if (transitionName === `slide`) {
         const toDepth = to.path.split(`/`).length;
@@ -42,7 +46,22 @@ export default {
         transitionName = toDepth < fromDepth ? `slide-right` : `slide-left`;
       }
 
-      this.transitionName = transitionName || DEFAULT_TRANSITION;
+      this.transitionMode = DEFAULT_TRANSITION_MODE;
+      this.transitionEnterActiveClass = `${transitionName}-enter-active`;
+
+      if (to.meta.transitionName === `zoom`) {
+        this.transitionMode = `in-out`;
+        this.transitionEnterActiveClass = `zoom-enter-active`;
+        document.body.style.overflow = `hidden`;
+      }
+
+      if (from.meta.transitionName === `zoom`) {
+        this.transitionMode = null;
+        this.transitionEnterActiveClass = null;
+        document.body.style.overflow = null;
+      }
+
+      this.transitionName = transitionName;
 
       next();
     });
@@ -122,6 +141,28 @@ p {
 .slide-right-enter {
   opacity: 0;
   transform: translate(-2em, 0);
+}
+
+.zoom-enter-active,
+.zoom-leave-active {
+  animation-duration: 0.5s;
+  animation-fill-mode: both;
+  animation-name: zoom;
+}
+
+.zoom-leave-active {
+  animation-direction: reverse;
+}
+
+@keyframes zoom {
+  from {
+    opacity: 0;
+    transform: scale3d(0.3, 0.3, 0.3);
+  }
+
+  100% {
+    opacity: 1;
+  }
 }
 
 .App {
